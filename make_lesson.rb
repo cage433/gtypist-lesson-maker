@@ -8,6 +8,7 @@ def parse_args(args)
   options.num_lines = 3
   options.max_word_length = 6
   options.num_lessons = 2
+  options.line_length = 80
 
   opt_parser = OptionParser.new do |opts|
     opts.on("-t", "--text TEXT", "Text to randomly generate words from") do |text|
@@ -26,6 +27,9 @@ def parse_args(args)
       options.num_lessons = n
     end
 
+    opts.on("-m", "--line-length-lessons [N]", Integer, "Length of line") do |n|
+      options.line_length = n
+    end
   end
 
   opt_parser.parse(args)
@@ -51,16 +55,23 @@ end
 
 def random_line()
   words = []
-  while words.collect { |w| w.size }.sum < 80
+  while words.collect { |w| w.size }.sum < $options.line_length
     words.push(random_word())
   end
   words.join(" ")
 end
 
 def random_lesson()
-  lines = Array.new($options.num_lines, random_line).collect { |l| ":" + l }
+  lines = []
+  while lines.size < $options.num_lines
+    lines.push(":" + random_line())
+  end
   "D" + lines.join("\n ")
 
 end
-lessons = Array.new($options.num_lessons, random_lesson)
+lessons = []
+while lessons.size < $options.num_lessons
+  lessons.push(random_lesson())
+end
+
 puts lessons.join("\n\n")
